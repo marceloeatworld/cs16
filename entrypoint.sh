@@ -33,6 +33,36 @@ if [ -n "$CONFIG_SRC" ]; then
     echo "[entrypoint] Configs synced"
 fi
 
+# --- Env-based admin injection ---
+# ADMINS="STEAM_0:1:123,STEAM_0:0:456" → append full-owner lines to users.ini.
+if [ -n "${ADMINS:-}" ]; then
+    USERS_INI=/hlds/cstrike/addons/amxmodx/configs/users.ini
+    mkdir -p "$(dirname "$USERS_INI")"
+    touch "$USERS_INI"
+    if [ -s "$USERS_INI" ] && [ "$(tail -c1 "$USERS_INI" | wc -l)" -eq 0 ]; then
+        printf '\n' >> "$USERS_INI"
+    fi
+    added=0
+    IFS=','
+    for sid in $ADMINS; do
+        sid=$(printf '%s' "$sid" | tr -d '[:space:]')
+        [ -z "$sid" ] && continue
+        if ! printf '%s' "$sid" | grep -qE '^STEAM_[0-9]:[01]:[0-9]+$'; then
+            echo "[entrypoint]   skip invalid SteamID: $sid"
+            continue
+        fi
+        if grep -qF "\"$sid\"" "$USERS_INI"; then
+            echo "[entrypoint]   already present: $sid"
+            continue
+        fi
+        printf '"%s" "" "abcdefghijklmnopqrstu" "ce"\n' "$sid" >> "$USERS_INI"
+        echo "[entrypoint]   + $sid"
+        added=$((added+1))
+    done
+    unset IFS
+    echo "[entrypoint] admins injected from \$ADMINS: $added"
+fi
+
 # Inject RCON password: env var wins, otherwise generate a random one.
 if [ -z "${RCON_PASSWORD:-}" ]; then
     RCON_PASSWORD=$(head -c 18 /dev/urandom | base64 | tr -d '/+=' | head -c 24)

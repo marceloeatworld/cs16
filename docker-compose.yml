@@ -39,3 +39,4 @@ services:
       - RCON_PASSWORD=${RCON_PASSWORD:-}
       - CF_ACCOUNT_ID=${CF_ACCOUNT_ID:-}
       - CF_API_TOKEN=${CF_API_TOKEN:-}
+      - ADMINS=${ADMINS:-}
