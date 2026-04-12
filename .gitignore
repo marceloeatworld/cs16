@@ -1,0 +1,29 @@
+# Runtime data (persistent, not committed)
+data/logs/
+data/maps/*.bsp
+data/maps/*.nav
+data/maps/*.wad
+data/maps/*.res
+data/maps/*.txt
+data/models/
+data/gfx/
+
+# Addon extras: zip downloads + extracted binaries (fetched at build time)
+data/addons_extra/
+
+# Stray local copies
+data/BotProfile.db
+
+# Secrets
+.env
+*.env.local
+rcon.txt
+
+# Temp / IDE / OS
+*.log
+*.swp
+*~
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

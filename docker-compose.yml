@@ -1,0 +1,41 @@
+# CS 1.6 Fun Server
+# Stack: Vanilla HLDS + ReGameDLL 5.28 + Metamod 1.21.1-am + AMX Mod X 1.10
+#
+# Local test:  docker compose build && docker compose up -d && docker compose logs -f
+#
+# Coolify deployment:
+#   1. Push this repo to Git (private OK via GitHub App or Deploy Key).
+#   2. Coolify UI -> New Resource -> Docker Compose buildpack.
+#   3. Advanced settings -> enable "Preserve Repository During Deployment"
+#      (required so the bind mounts resolve; coollabsio/coolify#1996).
+#   4. Environment Variables tab -> paste values from env.example.
+#   5. Do NOT assign a domain — this is raw UDP/TCP 27015, not HTTP.
+#   6. Hetzner Cloud firewall -> allow inbound UDP 27015 + TCP 27015.
+#      Docker bypasses host UFW on Linux.
+#   7. Deploy. Subsequent git pushes auto-deploy via webhook.
+#
+# Never add a top-level `networks:` block — it conflicts with network_mode: host
+# (Coolify auto-injection bug fixed in v4.0.0-beta.332, coollabsio/coolify#3374).
+
+services:
+  cs16:
+    build: .
+    image: cs16-server:latest
+    container_name: cs16
+    restart: unless-stopped
+    network_mode: host
+    stdin_open: true
+    tty: true
+
+    volumes:
+      - ./configs:/hlds/custom_configs:ro
+      - ./data/maps:/hlds/custom_maps_drop:ro
+      - ./data/models:/hlds/custom_models_drop:ro
+      - ./data/gfx:/hlds/custom_gfx_drop:ro
+      - ./data/logs:/hlds/cstrike/logs
+
+    environment:
+      - TZ=${TZ:-Europe/Lisbon}
+      - RCON_PASSWORD=${RCON_PASSWORD:-}
+      - CF_ACCOUNT_ID=${CF_ACCOUNT_ID:-}
+      - CF_API_TOKEN=${CF_API_TOKEN:-}

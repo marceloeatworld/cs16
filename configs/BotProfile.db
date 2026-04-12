@@ -1,0 +1,860 @@
+//----------------------------------------------------------------------------
+// BotProfile.db
+// Author: Michael S. Booth, Turtle Rock Studios (www.turtlerockstudios.com)
+// Elite bot edits by WaLLy3K 9/09/13 - additional customization by iGame.vn
+//
+// This database defines bot "personalities". 
+// Feel free to edit it and define your own bots.
+//
+
+
+//----------------------------------------------------------------------------
+
+//
+// All profiles begin with this data and overwrite their own
+//
+// Aiteklabs tuning: HARD brain (pathing, grenades, teamwork) but forgiving aim.
+// Lower Skill = worse aim / more misses. Higher ReactionTime = slower to snap.
+// AttackDelay adds a small hesitation before the first shot so humans can duel.
+Default
+	Skill = 45
+	Aggression = 70
+	ReactionTime = 0.55
+	AttackDelay = 0.30
+	Teamwork = 100
+	WeaponPreference = CompWeps
+	Cost = 0
+	Difficulty = HARD
+	VoicePitch = 50
+	Skin = 0
+End
+
+//----------------------------------------------------------------------------
+
+//
+// These templates inherit from Default and override with their values
+// The name of the template defines a type that is used by individual bot profiles
+//
+
+// weapon preference templates
+
+Template CompWeps
+	WeaponPreference = m4a1
+	WeaponPreference = ak47
+	WeaponPreference = p90
+	WeaponPreference = deagle
+	WeaponPreference = p250
+End
+
+Template Rifle
+	WeaponPreference = m4a1
+	WeaponPreference = ak47
+	WeaponPreference = famas
+	WeaponPreference = galilar
+	WeaponPreference = mp7
+End
+
+Template RifleT
+	WeaponPreference = ak47
+	WeaponPreference = m4a1
+	WeaponPreference = galilar
+	WeaponPreference = famas
+	WeaponPreference = mp7
+End
+
+Template Punch
+	WeaponPreference = famas
+	WeaponPreference = galilar
+	WeaponPreference = mp7
+End
+
+Template PunchT
+	WeaponPreference = famas
+	WeaponPreference = galilar
+	WeaponPreference = mp7
+End
+
+Template Sniper
+	WeaponPreference = sg550
+	WeaponPreference = g3sg1
+	WeaponPreference = ssg08
+	WeaponPreference = m4a1
+	WeaponPreference = ak47
+	WeaponPreference = mp7
+End
+
+Template Power
+	WeaponPreference = m249
+	WeaponPreference = xm1014
+	WeaponPreference = nova
+	WeaponPreference = m4a1
+	WeaponPreference = ak47
+	WeaponPreference = mp7
+End
+
+Template Shotgun
+	WeaponPreference = xm1014
+	WeaponPreference = nova
+	WeaponPreference = mag7
+	WeaponPreference = sawedoff
+	WeaponPreference = m4a1
+	WeaponPreference = ak47
+End
+
+Template Spray
+	WeaponPreference = m4a1
+	WeaponPreference = ak47
+	WeaponPreference = p90
+	WeaponPreference = mp9
+	WeaponPreference = mac10
+	WeaponPreference = mp7
+	WeaponPreference = ump45
+End
+
+// Global Elite Challenge (High End Tier 3) [Tested]
+Template Elite 
+	Skill = 100
+	//Rank = 1800
+	Aggression = 100
+	ReactionTime = 0.01
+	AttackDelay = 0.05
+	Cost = 4
+	Difficulty = EXPERT
+	WeaponPreference = CompWeps
+	VoicePitch = 40
+End
+
+// Elite Master Guardian Challenge (Low End Tier 3) [Tested]
+// Aiteklabs: Expert template = the HARD bucket used by bot_difficulty 2.
+// We keep Difficulty=HARD (smart pathing + grenades) but drop combat stats
+// way down so humans can actually duel and win.
+Template Expert
+	Skill = 25
+	//Rank = 1600
+	Aggression = 40
+	ReactionTime = 0.95
+	AttackDelay = 0.55
+	Cost = 4
+	Difficulty = HARD
+	WeaponPreference = CompWeps
+	VoicePitch = 50
+End
+
+// Gold Nova Master Challenge (Mid Tier 2)
+Template VeryHard
+	Skill = 90
+	//Rank = 1400
+	Aggression = 90
+	ReactionTime = 0.35
+	Cost = 3
+	Difficulty = NORMAL
+	VoicePitch = 75
+End
+
+// Gold Nova One Challenge (Low Tier 2)
+Template Hard
+	Skill = 90
+	//Rank = 1300
+	Aggression = 80
+	ReactionTime = 0.45
+	Cost = 3
+	Difficulty = NORMAL
+	VoicePitch = 85
+End
+
+// Silver Elite Challenge (High Tier 1)
+Template Tough
+	Skill = 80
+	//Rank = 1100
+	Aggression = 60
+	ReactionTime = 0.55
+	Cost = 2
+	Difficulty = NORMAL
+	VoicePitch = 95
+End
+
+// Silver IV Challenge (Mid Tier 1)
+Template Normal
+	Skill = 75
+	//Rank = 1000
+	Aggression = 45
+	ReactionTime = 0.80
+	Cost = 2
+	Difficulty = EASY
+	VoicePitch = 110
+End
+
+// Silver I Challenge (Low Tier 1)
+Template Fair
+	Skill = 75
+	//Rank = 850
+	Aggression = 30
+	ReactionTime = 0.90
+	Cost = 1
+	Difficulty = EASY
+	VoicePitch = 120
+End
+
+// Beginner Challenge (New to FPS & PC Gaming)
+Template Easy
+	Skill = 50
+	//Rank = 600
+	Aggression = 20
+	ReactionTime = 1.00
+	Cost = 1
+	Difficulty = EASY
+	VoicePitch = 130
+End
+
+//----------------------------------------------------------------------------
+//
+// These are the individual bot profiles, which inherit first from 
+// Default and then the specified Template(s), in order
+//
+
+Elite EzPz
+	Skin = 1
+	VoicePitch = 45
+End
+
+Elite KillStreak
+	Skin = 2
+	VoicePitch = 45
+End
+
+Elite VAC-Safe
+	Skin = 4
+	VoicePitch = 44
+End
+
+Elite MoltyMolotov
+	Skin = 4
+	VoicePitch = 40
+End
+
+Elite NinjaDefuse
+	Skin = 2
+	VoicePitch = 40
+End
+
+Elite SilentBob
+	Skin = 4
+	VoicePitch = 42
+End
+
+Elite FairPlay
+	Skin = 2
+	VoicePitch = 48
+End
+
+Elite HighPing
+	Skin = 1
+	VoicePitch = 46
+End
+
+Elite HostageHero
+	Skin = 3
+	VoicePitch = 45
+End
+
+Elite SmokeCheck
+	Skin = 1
+	VoicePitch = 44
+End
+
+Elite ProMaster
+	Skin = 4
+	VoicePitch = 49
+End
+
+
+//----------------------------------------
+
+Expert CampMcCampFace
+	VoicePitch = 85
+End
+
+Expert BombPlanter
+	VoicePitch = 100
+End
+
+Expert JumpyJoe
+	VoicePitch = 95
+End
+
+Expert NotHacking
+	VoicePitch = 115
+End
+
+Expert RouterBoy
+	VoicePitch = 87
+End
+
+Expert StreamSniper
+	VoicePitch = 91
+End
+
+Expert ForceBuyer
+	VoicePitch = 101
+End
+
+Expert Bhop-n-Pop
+	VoicePitch = 112
+End
+
+Expert ProneGuy
+	VoicePitch = 99
+End
+
+Expert WallbangWalt
+	VoicePitch = 100
+End
+
+//----------------------------------------
+
+VeryHard ClutchOrKick
+	Skin = 1
+	VoicePitch = 110
+End
+
+VeryHard SnipeGod
+	Skin = 3
+	VoicePitch = 93
+End
+
+VeryHard NoobMaster
+	Skin = 2
+	VoicePitch = 100
+End
+
+VeryHard ToxicTerry
+	Skin = 4
+	VoicePitch = 86
+End
+
+
+//----------------------------------------
+
+Hard+Rifle Lamb
+	Skin = 1
+	VoicePitch = 95
+End
+
+Hard+RifleT Dart
+	Skin = 2
+	VoicePitch = 90
+End
+
+Hard+Spray Pelican
+	Skin = 4
+	VoicePitch = 102
+End
+
+Hard+Shotgun Zigzag
+	Skin = 1
+	VoicePitch = 98
+End
+
+Hard+Rifle Frog
+	Skin = 2
+	VoicePitch = 96
+End
+
+Hard+Punch Whale
+	Skin = 4
+	VoicePitch = 103
+End
+
+Hard+Punch Flamingo
+	Skin = 1
+	VoicePitch = 105
+End
+
+Hard+Rifle Iguana
+	Skin = 2
+	VoicePitch = 97
+End
+
+Hard+Rifle Woodpecker
+	Skin = 4
+	VoicePitch = 84
+End
+
+Hard+Punch Pyramid
+	Skin = 1
+	VoicePitch = 90
+End
+
+Hard+Rifle Seal
+	Skin = 2
+	VoicePitch = 98
+End
+
+Hard+Sniper Manatee
+	Skin = 3
+	VoicePitch = 110
+End
+
+Hard+Spray Sparrow
+	Skin = 4
+	VoicePitch = 103
+End
+
+Hard+Rifle Bulldog
+	Skin = 2
+	VoicePitch = 110
+End
+
+//----------------------------------------
+
+Tough+Sniper Eclipse
+	Skin = 3
+	VoicePitch = 120
+End
+
+Tough+Rifle Cyclone
+	Skin = 1
+	VoicePitch = 100
+End
+
+Tough+Rifle Robin
+	Skin = 2
+	VoicePitch = 104
+End
+
+Tough+Rifle Hatchet
+	Skin = 4
+	VoicePitch = 98
+End
+
+Tough FPSDrop
+	Skin = 1
+	VoicePitch = 100
+End
+
+Tough+Rifle Zebra
+	Skin = 2
+	VoicePitch = 102
+End
+
+Tough+Shotgun Donkey
+	Skin = 4
+	VoicePitch = 95
+End
+
+Tough+Rifle Stump
+	Skin = 1
+	VoicePitch = 95
+End
+
+Tough+RifleT Macaw
+	Skin = 2
+	VoicePitch = 110
+End
+
+Tough+Rifle Torus
+	Skin = 4
+	VoicePitch = 112
+End
+
+Tough LagSpike
+	Skin = 1
+	VoicePitch = 90
+End
+
+Tough+Rifle Goose
+	Skin = 2
+	VoicePitch = 115
+End
+
+Tough+Rifle Blackbird
+	Skin = 4
+	VoicePitch = 107
+End
+
+Tough+Rifle Rose
+	Skin = 2
+	VoicePitch = 102
+End
+
+Tough FlashbangDance
+	Skin = 1
+	VoicePitch = 98
+End
+
+Tough+Rifle Dalmatian
+	Skin = 2
+	VoicePitch = 100
+End
+
+Tough+RifleT Wade
+	Skin = 4
+	VoicePitch = 95
+End
+
+Tough+Rifle Rattle
+	Skin = 1
+	VoicePitch = 86
+End
+
+Tough+RifleT Octopus
+	Skin = 2
+	VoicePitch = 100
+End
+
+Tough+Rifle Bell
+	Skin = 4
+	VoicePitch = 95
+End
+
+//----------------------------------------
+
+Normal+Rifle Adam
+	Skin = 1
+	VoicePitch = 105
+End
+
+Normal+PunchT Andy
+	Skin = 2
+	VoicePitch = 90
+End
+
+Normal DeagleDan
+	Skin = 3
+	VoicePitch = 100
+End
+
+Normal OneTap
+	Skin = 4
+	VoicePitch = 107
+End
+
+Normal+Rifle Dennis
+	Skin = 1
+	VoicePitch = 104
+End
+
+Normal Headglitch
+	Skin = 2
+	VoicePitch = 110
+End
+
+Normal HonestAbe
+	Skin = 3
+	VoicePitch = 95
+End
+
+Normal Defuser007
+	Skin = 4
+	VoicePitch = 112
+End
+
+Normal TripleKill
+	Skin = 1
+	VoicePitch = 111
+End
+
+Normal+Sniper Ian
+	Skin = 3
+	VoicePitch = 115
+End
+
+Normal Peek-a-Boo
+	Skin = 4
+	VoicePitch = 112
+End
+
+Normal AimBotless
+	Skin = 1
+	VoicePitch = 96
+End
+
+Normal BombMcBombFace
+	Skin = 2
+	VoicePitch = 98
+End
+
+Normal FirstBlood
+	Skin = 4
+	VoicePitch = 110
+End
+
+Normal AceAmigo
+	Skin = 1
+	VoicePitch = 95
+End
+
+Normal+RifleT Mike
+	Skin = 2
+	VoicePitch = 100
+End
+
+Normal Sportsman
+	Skin = 4
+	VoicePitch = 99
+End
+
+Normal HeadshotHomer
+	Skin = 3
+	VoicePitch = 98
+End
+
+Normal AwpMcAwpFace
+	Skin = 1
+	VoicePitch = 105
+End
+
+Normal RushMcRushFace
+	Skin = 2
+	VoicePitch = 115
+End
+
+Normal TurboSnail
+	Skin = 3
+	VoicePitch = 110
+End
+
+Normal PotatoPC
+	Skin = 4
+	VoicePitch = 92
+End
+
+//----------------------------------------
+
+Fair LastSecond
+	VoicePitch = 110
+End
+
+Fair MissedShots
+	VoicePitch = 100
+End
+
+Fair ChickenNugget
+	VoicePitch = 99
+End
+
+Fair+Spray Calvin
+	VoicePitch = 120
+End
+
+Fair RescueRick
+	VoicePitch = 111
+End
+
+Fair PotatoAim
+	VoicePitch = 98
+End
+
+Fair RngJesus
+	VoicePitch = 112
+End
+
+Fair EcoWarrior
+	VoicePitch = 90
+End
+
+Fair Grenadine
+	VoicePitch = 120
+End
+
+Fair SmokeyBear
+	VoicePitch = 118
+End
+
+Fair KnifeMaster
+	VoicePitch = 116
+End
+
+Fair HE-Spammer
+	VoicePitch = 114
+End
+
+Fair MidRusher
+	VoicePitch = 110
+End
+
+Fair Whiffer
+	VoicePitch = 98
+End
+
+Fair PingOfDoom
+	VoicePitch = 92
+End
+
+Fair NoScope420
+	VoicePitch = 113
+End
+
+Fair StrafeKing
+	VoicePitch = 114
+End
+
+Fair KnifeMcKnifeFace
+	VoicePitch = 115
+End
+
+Fair SaltyBiscuit
+	VoicePitch = 100
+End
+
+Fair LegitPlayer
+	VoicePitch = 102
+End
+
+Fair SaveRound
+	VoicePitch = 98
+End
+
+Fair HitboxHero
+	VoicePitch = 96
+End
+
+Fair NadeSpam
+	VoicePitch = 94
+End
+
+//----------------------------------------
+
+Easy AFK-Alan
+	VoicePitch = 100
+End
+
+Easy ClutchKing
+	VoicePitch = 110
+End
+
+Easy GlockStar
+	VoicePitch = 120
+End
+
+Easy CornerCamp
+	VoicePitch = 99
+End
+
+Easy LongAwper
+	VoicePitch = 120
+End
+
+Easy RushB
+	VoicePitch = 125
+End
+
+Easy TickRate
+	VoicePitch = 110
+End
+
+Easy TeamKiller
+	VoicePitch = 100
+End
+
+Easy FramerateGod
+	VoicePitch = 112
+End
+
+Easy NetCode
+	VoicePitch = 121
+End
+
+Easy QuadFather
+	VoicePitch = 99
+End
+
+Easy AcePilot
+	VoicePitch = 119
+End
+
+Easy TapShotTim
+	VoicePitch = 118
+End
+
+Easy MVP-Mike
+	VoicePitch = 117
+End
+
+Easy LoudMouth
+	VoicePitch = 116
+End
+
+Easy PacketLoss
+	VoicePitch = 115
+End
+
+Easy DoubleKill
+	VoicePitch = 114
+End
+
+Easy HighRoller
+	VoicePitch = 112
+End
+
+Easy Desync
+	VoicePitch = 111
+End
+
+Easy Reg-Handler
+	VoicePitch = 110
+End
+
+Easy GGWP
+	VoicePitch = 109
+End
+
+Easy SprayNPray
+	VoicePitch = 108
+End
+
+Easy UnluckyLuke
+	VoicePitch = 122
+End
+
+Easy RageQuit
+	VoicePitch = 120
+End
+
+Easy FriendlyFred
+	VoicePitch = 125
+End
+
+Easy Wallbanger
+	VoicePitch = 92
+End
+
+Easy CampBunny
+	VoicePitch = 100
+End
+
+Easy DuckMaster
+	VoicePitch = 102
+End
+
+Easy Shadowban
+	VoicePitch = 104
+End
+
+Easy FlashDance
+	VoicePitch = 108
+End
+
+Easy BhopBaby
+	VoicePitch = 95
+End
+
+Easy AwpMachine
+	VoicePitch = 100
+End
+
+Easy WifiIssues
+	VoicePitch = 120
+End
+
+Easy Bhop-n-Pop2
+	VoicePitch = 112
+End
+
+Easy SnipeGod2
+	VoicePitch = 99
+End
+
+Easy RageQuit2
+	VoicePitch = 110
+End
