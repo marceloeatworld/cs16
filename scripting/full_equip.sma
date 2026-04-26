@@ -1,9 +1,11 @@
 // Spawn loadout (money/armor/HP) + ammo refill on every weapon event.
+// Money can also be topped back up after purchases so players can always buy.
 //
 // Cvars:
 //   fe_money   int    money on spawn             (default 16000)
 //   fe_armor   0|1    kevlar+helmet on spawn     (default 1)
 //   fe_health  int    HP on spawn, 0 = default 100 (default 125)
+//   fe_refill_money 0|1 top money back up after buys (default 1)
 //
 // Pistols and shotguns never reload (clip refilled on every shot).
 // Rifles/SMGs/snipers reload normally but their backpack ammo is kept
@@ -20,20 +22,26 @@
 #include <fun>
 #include <engine>
 
+#define TASK_REAPPLY 1000
+#define TASK_REFILL_MONEY 2000
+
 new g_cvarMoney;
 new g_cvarArmor;
 new g_cvarHealth;
+new g_cvarRefillMoney;
 
 public plugin_init()
 {
-    register_plugin("Full Equip", "1.1", "aiteklabs");
+    register_plugin("Full Equip", "1.2", "aiteklabs");
 
-    g_cvarMoney  = register_cvar("fe_money",  "16000");
-    g_cvarArmor  = register_cvar("fe_armor",  "1");
-    g_cvarHealth = register_cvar("fe_health", "125");
+    g_cvarMoney       = register_cvar("fe_money",        "16000");
+    g_cvarArmor       = register_cvar("fe_armor",        "1");
+    g_cvarHealth      = register_cvar("fe_health",       "125");
+    g_cvarRefillMoney = register_cvar("fe_refill_money", "1");
 
     RegisterHam(Ham_Spawn, "player", "OnPlayerSpawnPost", 1);
     register_event("CurWeapon", "event_curweapon", "be", "1=1");
+    register_event("Money", "event_money", "be");
 }
 
 public OnPlayerSpawnPost(id)
@@ -42,13 +50,44 @@ public OnPlayerSpawnPost(id)
         return;
 
     apply_equip(id);
-    set_task(0.3, "task_reapply", id);
+    set_task(0.3, "task_reapply", id + TASK_REAPPLY);
 }
 
-public task_reapply(id)
+public client_disconnected(id)
 {
+    remove_task(id + TASK_REAPPLY);
+    remove_task(id + TASK_REFILL_MONEY);
+}
+
+public task_reapply(taskid)
+{
+    new id = taskid - TASK_REAPPLY;
     if (is_user_alive(id))
         apply_equip(id);
+}
+
+public event_money(id)
+{
+    if (get_pcvar_num(g_cvarRefillMoney) != 1)
+        return;
+
+    new target = get_pcvar_num(g_cvarMoney);
+    if (target <= 0)
+        return;
+
+    if (read_data(1) < target)
+        set_task(0.1, "task_refill_money", id + TASK_REFILL_MONEY);
+}
+
+public task_refill_money(taskid)
+{
+    new id = taskid - TASK_REFILL_MONEY;
+    if (!is_user_connected(id))
+        return;
+
+    new target = get_pcvar_num(g_cvarMoney);
+    if (target > 0 && cs_get_user_money(id) < target)
+        cs_set_user_money(id, target, 1);
 }
 
 apply_equip(id)

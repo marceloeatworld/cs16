@@ -5,6 +5,8 @@ A fully configured Counter-Strike 1.6 dedicated server running on Docker, deploy
 ## Features
 
 - **Full money** ($16,000) + free kevlar+helmet every round
+- **Spawn weapon packs** — players pick once with `/packs` or key `1`, then auto-equip every spawn
+- **Money refill after buys** — buying weapons keeps topping back up to $16,000
 - **125 HP** — slight boost, rifle headshots still kill
 - **Smart CZ bots** blocked from AWP/Scout/AUG/SG552/Shield at the game-DLL layer
 - **Bots always present** — server never looks empty to players browsing the list
@@ -19,7 +21,7 @@ A fully configured Counter-Strike 1.6 dedicated server running on Docker, deploy
 - **Map voting** — `/rtv` rock-the-vote + `/de /cs /fy /aim /awp /rats /ka /dr` group votes
 - **Admin menu** — `/admin` + chat shortcuts for kick/ban/slap/map/restart/bot
 - **Live FX** — `/night`, `/day`, `/dusk`, `/dark`, `/grav`, `/speed`, `/ff`
-- **Buy anywhere** + long buytime + alltalk + no friendly fire
+- **Buy anywhere** + unlimited buytime + alltalk + no friendly fire
 - **VAC secured** + Steam authentication
 
 ## Stack
@@ -82,6 +84,7 @@ Grab it with `docker compose logs cs16 | grep "generated"`. The `server.cfg` in 
 ├── scripting/               # Custom AMX Mod X plugins (.sma source)
 │   ├── admin_menu.sma       # Admin + FX menus + chat shortcuts
 │   ├── full_equip.sma       # Money, armor, HP, ammo refill
+│   ├── loadout_packs.sma    # Player spawn packs and quick weapon commands
 │   ├── weapon_limits.sma    # AWP limit, shield/auto-sniper ban, bot safety net
 │   ├── fun_extras.sma       # /rtv, /help, welcome
 │   ├── map_groups.sma       # Grouped map voting
@@ -98,6 +101,9 @@ Grab it with `docker compose logs cs16 | grep "generated"`. The `server.cfg` in 
 | Command | Description |
 |---|---|
 | `/help` | List all commands |
+| `/packs` `/guns` `/loadout` | Choose a spawn weapon pack |
+| `/rifle` `/awppack` `/rush` `/shotgun` `/heavy` `/pistol` `/random` | Pick a pack directly |
+| `/nopack` | Disable automatic spawn pack for yourself |
 | `/rtv` | Rock the vote (60% threshold) |
 | `/maps` | Show map groups |
 | `/de /cs /fy /aim /awp /rats /ka /dr` | Start a 3-map vote in that group |
@@ -144,7 +150,7 @@ Bots require a `.nav` file on every map they play. The Dockerfile pulls 20+ offi
 
 ## Weapons & Ammo
 
-Handled by `full_equip.sma` on every `CurWeapon` event:
+Handled by `full_equip.sma` on every `CurWeapon`/`Money` event:
 
 | Weapon class | Clip | Reserve |
 |---|---|---|
@@ -156,6 +162,23 @@ Handled by `full_equip.sma` on every `CurWeapon` event:
 | M249 | Reload normally | 200, always full |
 
 **Banned:** tactical shield (everyone), G3SG1 + SG550 auto snipers (everyone), AWP / Scout / AUG / SG552 for bots only. Humans are limited to 3 AWPs per team.
+
+## Spawn Packs
+
+Handled by `loadout_packs.sma`. On the first human spawn, a simple number menu appears:
+
+| Key | Pack |
+|---|---|
+| `1` | Rifle: AK for T, M4A1 for CT, Deagle, grenades |
+| `2` | AWP, Deagle, grenades |
+| `3` | P90 rush, Deagle, grenades |
+| `4` | XM1014 shotgun, Deagle, grenades |
+| `5` | M249 heavy, Deagle, grenades |
+| `6` | Deagle pistol pack, grenades |
+| `7` | Random fun pack every spawn |
+| `8` | Disable auto pack |
+
+The selected pack is re-applied each spawn. `/packs` opens the menu again. The AWP pack respects `wl_awp_per_team`; if the team is already at the limit, the player gets the rifle pack for that spawn.
 
 ## Adding Admins
 

@@ -47,12 +47,13 @@ public welcome_msg(id)
 {
     if (!is_user_connected(id))
         return;
-    client_print(id, print_chat, "[AITEKLABS] Welcome! Type /help to see available commands.");
+    client_print(id, print_chat, "[AITEKLABS] Welcome! Type /packs for spawn weapons, /help for commands.");
 }
 
 public cmd_help(id)
 {
-    client_print(id, print_chat, "[AITEKLABS] Player: /rtv /maps /nextmap /timeleft /help");
+    client_print(id, print_chat, "[AITEKLABS] Player: /packs /rtv /maps /nextmap /timeleft /help");
+    client_print(id, print_chat, "[AITEKLABS] Packs: /rifle /awppack /rush /shotgun /heavy /pistol /random /nopack");
     client_print(id, print_chat, "[AITEKLABS] Maps: /de /cs /fy /aim /awp /rats /ka /dr");
     client_print(id, print_chat, "[AITEKLABS] Admin: /admin /kick /ban /slap /map /bot /restart /revive");
     return PLUGIN_HANDLED;
