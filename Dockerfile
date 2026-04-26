@@ -146,5 +146,5 @@ CMD ["./hlds_run", \
      "+port", "27015", \
      "+maxplayers", "32", \
      "+map", "de_dust2", \
-     "-pingboost", "3", \
-     "+sys_ticrate", "1000"]
+     "-pingboost", "2", \
+     "+sys_ticrate", "500"]

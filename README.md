@@ -12,6 +12,9 @@ A fully configured Counter-Strike 1.6 dedicated server running on Docker, deploy
 - **Weapon restrictions** — tactical shield and auto snipers (G3SG1/SG550) banned for everyone, AWP limited to 3 per team
 - **No-reload pistols + shotguns** — clip auto-refills on every shot
 - **Infinite reserve for rifles/SMGs** — reload still needed, backpack never empty
+- **Admin revive** — `/revive` respawns dead T/CT players without restarting the round
+- **Hourly refresh** — maps rotate/vote every 60 minutes to keep matches clean
+- **Shared-host defaults** — 500 FPS/ticrate, lighter rates/logs, Docker CPU/RAM guardrails
 - **42 maps** — official + custom (fy, aim, awp, rats, deathrun, knife arena)
 - **Map voting** — `/rtv` rock-the-vote + `/de /cs /fy /aim /awp /rats /ka /dr` group votes
 - **Admin menu** — `/admin` + chat shortcuts for kick/ban/slap/map/restart/bot
@@ -110,6 +113,7 @@ Grab it with `docker compose logs cs16 | grep "generated"`. The `server.cfg` in 
 | `/map` `/votemap` | Change map / vote map |
 | `/restrict` | Weapon restriction menu |
 | `/restart` | Restart round |
+| `/revive` | Respawn a dead player |
 | `/bot` | Bot settings menu (quota, add, kick, status) |
 | `/info` | Server info |
 | `/fx` | Server FX submenu |
@@ -125,7 +129,7 @@ Bots are native CZ bots shipped with ReGameDLL. No custom bot plugin.
 | Cvar | Value | Notes |
 |---|---|---|
 | `bot_enable` | `1` | **Must live in `game_init.cfg`** — read once at DLL init |
-| `bot_quota` | `10` | Total slots filled by humans + bots |
+| `bot_quota` | `8` | Total slots filled by humans + bots |
 | `bot_quota_mode` | `fill` | Bots get kicked as humans connect |
 | `bot_difficulty` | `2` | 0 easy / 1 normal / 2 hard / 3 expert |
 | `bot_join_after_player` | `0` | Bots join even at 0 humans |
@@ -185,6 +189,8 @@ All runtime-configurable values live in `env.example`. Copy it to `.env` for loc
 | `CF_ACCOUNT_ID` | (unset) | Cloudflare account id for the AI commentator |
 | `CF_API_TOKEN` | (unset) | Cloudflare Workers AI token |
 | `TZ` | `Europe/Lisbon` | Container timezone (any tzdata name) |
+| `CS16_CPUS` | `2.0` | Docker CPU limit so HLDS cannot starve other services |
+| `CS16_MEMORY` | `1g` | Docker memory limit for the CS container |
 
 ## Coolify Deployment
 

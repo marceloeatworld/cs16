@@ -24,6 +24,8 @@ services:
     container_name: cs16
     restart: unless-stopped
     network_mode: host
+    cpus: "${CS16_CPUS:-2.0}"
+    mem_limit: "${CS16_MEMORY:-1g}"
     stdin_open: true
     tty: true
 

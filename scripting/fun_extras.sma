@@ -54,7 +54,7 @@ public cmd_help(id)
 {
     client_print(id, print_chat, "[AITEKLABS] Player: /rtv /maps /nextmap /timeleft /help");
     client_print(id, print_chat, "[AITEKLABS] Maps: /de /cs /fy /aim /awp /rats /ka /dr");
-    client_print(id, print_chat, "[AITEKLABS] Admin: /admin /kick /ban /slap /map /bot /restart");
+    client_print(id, print_chat, "[AITEKLABS] Admin: /admin /kick /ban /slap /map /bot /restart /revive");
     return PLUGIN_HANDLED;
 }
 

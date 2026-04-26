@@ -1,7 +1,7 @@
 // Admin menu driven by chat commands (no number-key binds required).
 // All commands below check the relevant ADMIN_* flag from users.ini.
 //
-// /admin /kick /ban /slap /team /map /votemap /restrict /restart /bot /info
+// /admin /kick /ban /slap /team /map /votemap /restrict /restart /revive /bot /info
 // /fx /night /day /dusk /dark /ff /grav /speed
 
 #include <amxmodx>
@@ -57,7 +57,7 @@ public cmd_show_help(id)
 
     client_print(id, print_chat, "=== [AITEKLABS] Admin Commands ===");
     client_print(id, print_chat, "/kick - /ban - /slap - /team - /map - /votemap");
-    client_print(id, print_chat, "/restrict - /restart - /bot - /info");
+    client_print(id, print_chat, "/restrict - /restart - /revive - /bot - /info");
     client_print(id, print_chat, "/fx - /night - /day - /dusk - /dark - /ff - /grav - /speed");
     client_print(id, print_chat, "/de /cs /fy /aim /awp /rats /ka /dr - map votes");
     return PLUGIN_HANDLED;
