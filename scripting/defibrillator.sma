@@ -2,13 +2,15 @@
 //
 // UX, mirroring the classic Cheap_Suit "Revival Kit" pattern:
 //   - When an alive teammate is within `df_range` of a dead body and has line
-//     of sight to it, a yellow HUD prompt "[E] Hold to revive <name>" appears.
+//     of sight to it, a yellow HUD prompt "[E] Hold to revive <name>" appears
+//     and the CS "rescue" status icon flashes on the medic's screen.
 //   - Holding +use (E) starts the CS defuse-style progress bar (BarTime user
-//     message) for `df_hold_time` seconds.
-//   - Releasing E or breaking line of sight cancels the revive and clears
-//     the bar.
+//     message) for `df_hold_time` seconds and plays a medkit sound.
+//   - Releasing E or breaking line of sight cancels the revive, clears the
+//     bar and plays the failure sound.
 //   - On completion the dead teammate respawns at the medic's position with
-//     fe_health / fe_armor / fe_money applied, and the medic loses one defib.
+//     fe_health / fe_armor / fe_money applied, sees a black-to-clear screen
+//     fade, and the medic loses one defib.
 //
 // Each player gets `df_count` defibs at Round_Start. Counts do NOT refresh
 // on revive-spawns (otherwise revive chains would be infinite).
@@ -35,6 +37,10 @@
 
 #define TICK_INTERVAL 0.1
 
+#define SND_REVIVE_START   "items/medshot4.wav"
+#define SND_REVIVE_SUCCESS "items/smallmedkit2.wav"
+#define SND_REVIVE_CANCEL  "items/medshotno1.wav"
+
 new g_defibs[33];
 new Float:g_deathOrigin[33][3];
 new bool:g_hasDeath[33];
@@ -44,15 +50,23 @@ new bool:g_gotInitial[33];
 new g_reviveTarget[33];        // 0 = not currently reviving anyone
 new Float:g_reviveCompleteAt[33];
 new g_pendingMedic[33];        // for the post-respawn teleport task
+new bool:g_iconShown[33];      // dedup for the StatusIcon flashing message
 
-new g_msgBarTime;
+new g_msgBarTime, g_msgStatusIcon, g_msgScreenFade;
 
 new g_cvarEnabled, g_cvarCount, g_cvarRange;
 new g_cvarHoldTime, g_cvarHealth, g_cvarShowHud, g_cvarSkipBots;
 
+public plugin_precache()
+{
+    precache_sound(SND_REVIVE_START);
+    precache_sound(SND_REVIVE_SUCCESS);
+    precache_sound(SND_REVIVE_CANCEL);
+}
+
 public plugin_init()
 {
-    register_plugin("Defibrillator", "2.0", "aiteklabs");
+    register_plugin("Defibrillator", "2.1", "aiteklabs");
 
     g_cvarEnabled  = register_cvar("df_enabled",   "1");
     g_cvarCount    = register_cvar("df_count",     "2");
@@ -66,7 +80,9 @@ public plugin_init()
     RegisterHam(Ham_Killed, "player", "OnPlayerKilled", 1);
     register_logevent("OnRoundStart", 2, "1=Round_Start");
 
-    g_msgBarTime = get_user_msgid("BarTime");
+    g_msgBarTime    = get_user_msgid("BarTime");
+    g_msgStatusIcon = get_user_msgid("StatusIcon");
+    g_msgScreenFade = get_user_msgid("ScreenFade");
 
     set_task(TICK_INTERVAL, "task_tick",     TASK_TICK, _, _, "b");
     set_task(1.0,           "task_show_hud", TASK_HUD,  _, _, "b");
@@ -92,6 +108,7 @@ reset_player_state(id)
     g_gotInitial[id] = false;
     g_reviveTarget[id] = 0;
     g_reviveCompleteAt[id] = 0.0;
+    g_iconShown[id] = false;
 }
 
 public OnSpawnPost(id)
@@ -104,7 +121,7 @@ public OnSpawnPost(id)
     g_hasDeath[id] = false;
     g_reviveTarget[id] = 0;
 
-    // First spawn after connect — give defibs straight away (mid-round
+    // First spawn after connect - give defibs straight away (mid-round
     // joiners). Subsequent refills happen at Round_Start.
     if (!g_gotInitial[id])
     {
@@ -168,10 +185,13 @@ public task_tick()
 
         if (target == 0)
         {
+            set_rescue_icon(id, false);
             if (g_reviveTarget[id] != 0)
                 cancel_revive(id);
             continue;
         }
+
+        set_rescue_icon(id, true);
 
         if (show_hud)
         {
@@ -254,16 +274,22 @@ start_revive(medic, target, Float:hold_time)
     message_begin(MSG_ONE, g_msgBarTime, _, medic);
     write_byte(floatround(hold_time));
     message_end();
+
+    emit_sound(medic, CHAN_ITEM, SND_REVIVE_START, 1.0, ATTN_NORM, 0, PITCH_NORM);
 }
 
 cancel_revive(medic)
 {
+    new bool:was_active = (g_reviveTarget[medic] != 0);
     g_reviveTarget[medic] = 0;
 
     // Clear the progress bar
     message_begin(MSG_ONE, g_msgBarTime, _, medic);
     write_byte(0);
     message_end();
+
+    if (was_active && is_user_alive(medic))
+        emit_sound(medic, CHAN_ITEM, SND_REVIVE_CANCEL, 1.0, ATTN_NORM, 0, PITCH_NORM);
 }
 
 complete_revive(medic)
@@ -280,9 +306,16 @@ complete_revive(medic)
     g_pendingMedic[target] = medic;
     g_hasDeath[target] = false;
 
+    // Clear any lingering progress bar on the medic.
+    message_begin(MSG_ONE, g_msgBarTime, _, medic);
+    write_byte(0);
+    message_end();
+
     ExecuteHamB(Ham_CS_RoundRespawn, target);
     set_task(0.1, "task_teleport_revived",  target + TASK_TELE);
     set_task(0.2, "task_post_revive_equip", target + TASK_REEQ);
+
+    emit_sound(medic, CHAN_ITEM, SND_REVIVE_SUCCESS, 1.0, ATTN_NORM, 0, PITCH_NORM);
 
     new myname[32], tname[32];
     get_user_name(medic,  myname, charsmax(myname));
@@ -328,6 +361,34 @@ public task_post_revive_equip(taskid)
     new money = get_cvar_num("fe_money");
     if (money > 0)
         cs_set_user_money(id, money, 1);
+
+    // "Waking up" black-to-clear fade for the revived player.
+    message_begin(MSG_ONE, g_msgScreenFade, _, id);
+    write_short(1 << 12);   // ~1s fade duration
+    write_short(0);         // no hold
+    write_short(0x0000);    // FFADE_IN: start opaque, fade to clear
+    write_byte(0);          // r
+    write_byte(0);          // g
+    write_byte(0);          // b
+    write_byte(255);        // alpha at start
+    message_end();
+
+    emit_sound(id, CHAN_AUTO, SND_REVIVE_SUCCESS, 1.0, ATTN_NORM, 0, PITCH_NORM);
+}
+
+set_rescue_icon(id, bool:show)
+{
+    if (g_iconShown[id] == show) return;
+    g_iconShown[id] = show;
+
+    // StatusIcon: byte 0 = hide, 2 = flash. Followed by sprite name and RGB.
+    message_begin(MSG_ONE, g_msgStatusIcon, _, id);
+    write_byte(show ? 2 : 0);
+    write_string("rescue");
+    write_byte(0);
+    write_byte(show ? 160 : 0);
+    write_byte(0);
+    message_end();
 }
 
 public task_show_hud()
@@ -341,7 +402,7 @@ public task_show_hud()
         if (is_user_bot(i))    continue;
         if (g_defibs[i] <= 0)  continue;
 
-        // Channel 4 — separate from the [E] prompt on channel 3.
+        // Channel 4 - separate from the [E] prompt on channel 3.
         set_hudmessage(0, 200, 0, 0.02, 0.85, 0, 0.0, 1.1, 0.0, 0.0, 4);
         show_hudmessage(i, "Defib: %d", g_defibs[i]);
     }
