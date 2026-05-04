@@ -1,6 +1,10 @@
 // Fast spawn loadout packs for public multiplayer.
 //
-// Players choose once at the start, then the same pack is given on every spawn.
+// The pack menu pops up on every respawn and the player must pick a pack
+// each time - no auto-reapply of the previous choice. Picking "8. No auto
+// pack" is the opt-out: the menu stops appearing for that player. They can
+// reopen it any time with /packs.
+//
 // Commands:
 //   /packs, /guns, /loadout  - open the pack menu
 //   /rifle, /rush, /shotgun, /heavy, /pistol, /awppack, /random, /nopack
@@ -29,6 +33,11 @@ enum
 
 new g_pack[33];
 new bool:g_menuShown[33];
+
+// Pack choice keyed by SteamID. The engine drops + re-adds every player on
+// level change (client_disconnected / client_putinserver fire), which would
+// otherwise wipe g_pack and re-show the menu after every map.
+new Trie:g_packStore;
 
 new g_cvarEnabled;
 new g_cvarShowMenu;
@@ -103,12 +112,35 @@ public plugin_init()
     register_clcmd("say_team /noauto",   "cmd_pack_none");
 
     register_menucmd(register_menuid("AitekLoadout"), KEYS_ALL, "handle_pack_menu");
+
+    g_packStore = TrieCreate();
+}
+
+public plugin_end()
+{
+    if (g_packStore != Invalid_Trie)
+        TrieDestroy(g_packStore);
 }
 
 public client_putinserver(id)
 {
     g_pack[id] = PACK_NONE;
     g_menuShown[id] = false;
+
+    if (is_user_bot(id))
+        return;
+
+    new authid[40];
+    get_user_authid(id, authid, charsmax(authid));
+    if (!valid_authid(authid))
+        return;
+
+    new stored;
+    if (TrieGetCell(g_packStore, authid, stored))
+    {
+        g_pack[id] = stored;
+        g_menuShown[id] = true;
+    }
 }
 
 public client_disconnected(id)
@@ -139,17 +171,15 @@ public task_spawn_pack(taskid)
     if (!is_playing_team(id))
         return;
 
-    if (g_pack[id] == PACK_NONE)
-    {
-        if (get_pcvar_num(g_cvarShowMenu) == 1 && !g_menuShown[id])
-        {
-            g_menuShown[id] = true;
-            show_pack_menu(id);
-        }
+    if (get_pcvar_num(g_cvarShowMenu) != 1)
         return;
-    }
 
-    apply_pack(id, g_pack[id], false);
+    // Opt-out: player picked "8. No auto pack" (PACK_NONE after a menu choice).
+    // Everyone else gets the menu fresh on every respawn - no auto-reapply.
+    if (g_pack[id] == PACK_NONE && g_menuShown[id])
+        return;
+
+    show_pack_menu(id);
 }
 
 public cmd_pack_menu(id)
@@ -210,6 +240,8 @@ select_pack(id, pack)
 
     g_pack[id] = pack;
     g_menuShown[id] = true;
+
+    persist_pack(id, pack);
 
     if (pack == PACK_NONE)
     {
@@ -394,4 +426,34 @@ pack_label(pack, label[], len)
         case PACK_RANDOM:  copy(label, len, "Random");
         default:           copy(label, len, "None");
     }
+}
+
+persist_pack(id, pack)
+{
+    if (is_user_bot(id))
+        return;
+
+    new authid[40];
+    get_user_authid(id, authid, charsmax(authid));
+    if (!valid_authid(authid))
+        return;
+
+    TrieSetCell(g_packStore, authid, pack);
+}
+
+bool:valid_authid(const authid[])
+{
+    if (authid[0] == 0)
+        return false;
+    if (equal(authid, "BOT"))
+        return false;
+    if (equal(authid, "HLTV"))
+        return false;
+    if (equal(authid, "STEAM_ID_PENDING"))
+        return false;
+    if (equal(authid, "STEAM_ID_LAN"))
+        return false;
+    if (equal(authid, "VALVE_ID_LOH"))
+        return false;
+    return true;
 }
